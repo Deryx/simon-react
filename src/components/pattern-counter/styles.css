@@ -16,6 +16,8 @@
 	color: red;
 	font-family: "Calculator", sans-serif;
 	margin: 0;
-	margin-top: -6px;
+	margin-top: -3px;
+	letter-spacing: 2px;
 	text-align: center;
+	font-family: "Digital-7", sans-serif;
 }
