@@ -1,0 +1,33 @@
+[class*='button'] {
+    width: 350px;
+    height: 350px;
+    border-radius: 10px;
+}
+
+.green-button {
+	background: #008000;
+	float: left;
+	margin-bottom: 20px;
+	border-top-left-radius: 380px;
+}
+
+.red-button {
+	background: #FF0000;
+	float: left;
+	border-top-right-radius: 380px;
+	margin-left: 20px;
+	margin-bottom: 20px;
+}
+
+.yellow-button {
+	background: #F5AB35;
+	float: left;
+	border-bottom-left-radius: 380px;
+}
+
+.blue-button {
+	background: #0000FF;
+	float: left;
+	margin-left: 20px;
+	border-bottom-right-radius: 380px;
+}
