@@ -1,11 +1,15 @@
 import * as React from 'react';
 import './styles.css';
 
-class StartButton extends React.Component {
+interface IActionProps {
+    startAction: any
+}
+
+class StartButton extends React.Component<IActionProps> {
     public render() {
         return (
             <div className="start">
-                <div className="button"/>
+                <div className="button" onClick={this.props.startAction} />
                 <p>start</p>
             </div>
         );
