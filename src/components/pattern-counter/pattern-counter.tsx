@@ -6,7 +6,7 @@ class PatternCounter extends React.Component {
         return ( 
             <div className="counter">
                 <div className="count">
-                    <p>--</p>
+                    <p />
                 </div>
                 <p>count</p>
             </div>
