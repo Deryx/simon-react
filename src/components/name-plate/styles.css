@@ -5,5 +5,8 @@
 	text-transform: lowercase;
 	letter-spacing: 2px;
 	font-size: 4em;
+}
 
+sup {
+	font-size: 40%;
 }
