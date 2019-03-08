@@ -6,51 +6,58 @@ import StartButton from '../start-button/start-button';
 import StrictButton from '../strict-button/strict-button';
 import './styles.css';
 
+const simonButtons: any = [
+    {color: "#008000", sound: "https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"},
+    {color: "#FF0000", sound: "https://s3.amazonaws.com/freecodecamp/simonSound2.mp3"},
+    {color: "#0000FF", sound: "https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"},
+    {color: "#F5AB35", sound: "https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"}
+];
+// const patternCounter: any = document.querySelector( '.count > p' );
+// const switchButton: any = document.querySelector( '.case > .switch' );
+
+const MAX_STEPS: number = 20;
+const BLANK_COUNTER: string  = '';
+const ON_COUNTER: string = '--';
+const WRONG_COUNTER: string = '!!';
+const lightTime: number = 800;
+
+let round: number = 1;
+let playerPattern: number[] = [];
+let simonPattern: number[] = [];
+let strictState: string = 'off';
+let switchState: string = 'off';
+
 class ControlPanel extends React.Component {
-    private readonly simonButtons = [
-        {color: "#008000", sound: "https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"},
-        {color: "#FF0000", sound: "https://s3.amazonaws.com/freecodecamp/simonSound2.mp3"},
-        {color: "#0000FF", sound: "https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"},
-        {color: "#F5AB35", sound: "https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"}
-    ];
-
-    private readonly MAX_STEPS: number = 20;
-    private readonly BLANK_COUNTER: string = '';
-    private readonly ON_COUNTER: string = '--';
-    private readonly WRONG_COUNTER: string = '!!';
-    private readonly lightTime: number = 800;
-    
-    private round: number = 1;
-    private playerPattern: number[] = [];
-    private simonPattern: number[] = [];
-    private strictState: string = 'off';
-    private switchState: string = 'off';
-
-    constructor(props:any) {
+    constructor( props: any ) {
         super(props);
 
-        this.state = {
-            round: 1
-        }
-
-        this.handleStartAction = this.handleStartAction.bind(this);
-        this.handleStrictAction = this.handleStrictAction.bind(this);
         this.handleSwitchAction = this.handleSwitchAction.bind(this);
+        this.handleStrictAction = this.handleStrictAction.bind(this);
+        this.handleStartAction = this.handleStartAction.bind(this);
+        this.playGame = this.playGame.bind(this);
     }
 
-    public handleStartAction(evt: any) {       
+    public handleSwitchAction(evt: any) {
+        const patternCounter: any = document.querySelector( '.count > p' );
+        const switchButton: any = document.querySelector( '.case > .switch' );
+
         evt.preventDefault();
-        if(this.switchState && this.switchState === 'on') {
-            this.playGame();
+        switchState = switchState === 'off' ? 'on' : 'off';
+        if(switchState && switchState === 'off') {
+            switchButton.style.float = 'left';
+            patternCounter.textContent = BLANK_COUNTER;
+        } else {
+            switchButton.style.float = 'right';
+            patternCounter.textContent = ON_COUNTER;
         }
     }
 
     public handleStrictAction(evt: any) {
-        const indicator:any = document.querySelector('.indicator');
+        const indicator: any = document.querySelector( '.indicator' );
         evt.preventDefault();
-        this.strictState = this.strictState === 'off' ? 'on' : 'off';
-        if(this.switchState && this.switchState === 'on') {
-            if(this.strictState && this.strictState === 'off') {
+        strictState = strictState === 'off' ? 'on' : 'off';
+        if(switchState && switchState === 'on') {
+            if(strictState && strictState === 'off') {
                 indicator.style.background = "green";
             } else {
                 indicator.style.background = "red";
@@ -58,18 +65,36 @@ class ControlPanel extends React.Component {
         }
     }
 
-    public handleSwitchAction(evt: any) {
-        const patternCounter:any = document.querySelector('.count > p');
-        const switchButton:any = document.querySelector('.case > .switch');
+    public handleStartAction(evt: any) {
         evt.preventDefault();
-        this.switchState = this.switchState === 'off' ? 'on' : 'off';
-        if(this.switchState && this.switchState === 'off') {
-            switchButton.style.float = 'left';
-            patternCounter.textContent = this.BLANK_COUNTER;
-        } else {
-            switchButton.style.float = 'right';
-            patternCounter.textContent = this.ON_COUNTER;
+        if(switchState && switchState === 'on') {
+            this.playGame();
         }
+    };
+
+    public playGame(): any {
+        const patternCounter: any = document.querySelector( '.count > p' );
+        ( () => {
+            if( round < MAX_STEPS ) {
+                patternCounter.textContext = this.showDoubleDigit( round );
+                this.playRound();
+        
+                setTimeout( () => {
+                    if(this.arraysIdentical( simonPattern, playerPattern )) {
+                    round++;
+                    return this.playGame();
+                    } else {
+                        patternCounter.textContext = WRONG_COUNTER;
+                        if( strictState && strictState === "on") {
+                            this.resetGame();
+                            return this.playGame();
+                        } else {
+                            return this.playGame();
+                        }
+                    }
+                }, round * 2400 );
+            }
+        })();
     }
     
     public render() {
@@ -86,15 +111,15 @@ class ControlPanel extends React.Component {
         );
     }
 
-    protected showDoubleDigit( num: number ): any {
+    protected showDoubleDigit( num: number ): string {
         if( num >= 0 && num <= 9 ) {
             return "0" + num;
         } else {
-            return num;
+            return num.toString();
         }
     }
     
-    protected arraysIdentical( arr1: any, arr2: any ): boolean {
+    protected arraysIdentical( arr1: number[], arr2: number[] ): any {
         if( arr1.length !== arr2.length ) {
             return false;
         }
@@ -108,60 +133,45 @@ class ControlPanel extends React.Component {
     }
     
     protected resetGame(): void {
-        this.round = 1;
-        this.playerPattern = [];
-        this.simonPattern = [];
-    }
-    
-    protected playGame(): any {
-        const patternCounter:any = document.querySelector('.count > p');
-        if( this.round < this.MAX_STEPS ) {
-            patternCounter.textContext = this.showDoubleDigit( this.round );
-            this.playRound();
-    
-            if(this.arraysIdentical( this.simonPattern, this.playerPattern )) {
-                this.round++;
-                return this.playGame();
-            } else {
-                patternCounter.textContext = this.WRONG_COUNTER;
-                if( this.strictState && this.strictState === "on") {
-                    this.resetGame();
-                    return this.playGame();
-                } else {
-                    return this.playGame();
-                }
-            }
-        }
+        round = 1;
+        playerPattern = [];
+        simonPattern = [];
     }
     
     protected playRound(): void {
-        this.simonPattern.push( this.getRandomButton() );
+        simonPattern.push( this.getRandomButton() );
         this.playSimonPattern();
         this.getPlayerPattern();
     }
     
     protected playSimonPattern(): void {
-        this.simonPattern.forEach( (button: number) => setTimeout( () => {
-            this.lightSimonButton( button );
-        }), this.lightTime );
+        const simonLength: number = simonPattern.length;
+		for (let i = 0; i < simonLength; i++) {
+			( () => {
+				setTimeout( () => {
+					const button = simonPattern[i];
+					this.lightSimonButton( button );
+                }, i * lightTime);
+			})();
+		}
     }
     
     protected getPlayerPattern(): void {
-        this.simonPattern.forEach( (button:number) => setTimeout( () => {
+        simonPattern.forEach( ( button ) => setTimeout( () => {
             this.getSimonButton();
-        }), this.lightTime );
+        }), lightTime );
     }
     
     protected getSimonButton(): void {
-        let btnClicked: any;
+        let btnClicked;
         const colorButton: any = document.querySelector( '[class$="button"]' );
         colorButton.onclick = ( event: any ) => {
             event = event || window.event;
-            const target: any = event.target || event.srcElement;
+            const target = event.target || event.srcElement;
     
             if( !isNaN( target.id ) ) {
                 btnClicked = target.id;
-                this.playerPattern.push( parseInt(btnClicked, 10) );
+                playerPattern.push( parseInt( btnClicked, 10 ) );
                 this.lightSimonButton( btnClicked );
             }
         };
@@ -171,8 +181,8 @@ class ControlPanel extends React.Component {
         return Math.floor( Math.random() * 4 );
     }
     
-    protected lightSimonButton( btn: number ): void {
-        const originalColor = this.simonButtons[ btn ].color;
+    protected lightSimonButton( btn: number ): any {
+        const originalColor = simonButtons[ btn ].color;
     
         const lightColor = this.lightenDarkenColor( originalColor, 90 );
     
@@ -180,7 +190,7 @@ class ControlPanel extends React.Component {
         button.style.backgroundColor = lightColor;
     
         this.playSound( btn );
-        setTimeout( () => button.style.backgroundColor = originalColor, this.lightTime/2);
+        setTimeout( () => button.style.backgroundColor = originalColor, lightTime/2 );
     }
     
     protected lightenDarkenColor( col: any, amt: any ): any {
@@ -191,10 +201,9 @@ class ControlPanel extends React.Component {
             usePound = true;
         }
     
-        const num: number = parseInt(col,16);
-    
+        const num = parseInt( col, 16 );
         /* tslint:disable:no-bitwise */
-        let r: number = (num >> 16) + amt;
+        let r = (num >> 16) + amt;
     
         if (r > 255) {
             r = 255;
@@ -202,7 +211,7 @@ class ControlPanel extends React.Component {
             r = 0;
         }
     
-        let b: number = ((num >> 8) & 0x00FF) + amt;
+        let b = ((num >> 8) & 0x00FF) + amt;
     
         if (b > 255) {
             b = 255;
@@ -210,7 +219,7 @@ class ControlPanel extends React.Component {
             b = 0;
         }
     
-        let g: number = (num & 0x0000FF) + amt;
+        let g = (num & 0x0000FF) + amt;
     
         if (g > 255) {
             g = 255;
@@ -220,10 +229,10 @@ class ControlPanel extends React.Component {
     
         return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
         /* tslint:enable:no-bitwise */
-    }
+}
     
     protected playSound( btn: number ): void {
-        const sound = this.simonButtons[ btn ].sound;
+        const sound = simonButtons[ btn ].sound;
     
         const button: any = document.querySelector( "div[id='" + btn + "'] audio" );
     
