@@ -12,8 +12,6 @@ const simonButtons: any = [
     {color: "#0000FF", sound: "https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"},
     {color: "#F5AB35", sound: "https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"}
 ];
-// const patternCounter: any = document.querySelector( '.count > p' );
-// const switchButton: any = document.querySelector( '.case > .switch' );
 
 const MAX_STEPS: number = 20;
 const BLANK_COUNTER: string  = '';
@@ -21,15 +19,20 @@ const ON_COUNTER: string = '--';
 const WRONG_COUNTER: string = '!!';
 const lightTime: number = 800;
 
-let round: number = 1;
 let playerPattern: number[] = [];
 let simonPattern: number[] = [];
-let strictState: string = 'off';
-let switchState: string = 'off';
 
 class ControlPanel extends React.Component {
+    public state: any;
+ 
     constructor( props: any ) {
         super(props);
+
+        this.state = {
+            counter: 1,
+            strictState: 'off',
+            switchState: 'off'
+        }
 
         this.handleSwitchAction = this.handleSwitchAction.bind(this);
         this.handleStrictAction = this.handleStrictAction.bind(this);
@@ -40,24 +43,27 @@ class ControlPanel extends React.Component {
     public handleSwitchAction(evt: any) {
         const patternCounter: any = document.querySelector( '.count > p' );
         const switchButton: any = document.querySelector( '.case > .switch' );
-
+        const startButton: any = document.querySelector( '.start > .button' );
         evt.preventDefault();
-        switchState = switchState === 'off' ? 'on' : 'off';
-        if(switchState && switchState === 'off') {
+        this.changeSwitchState();
+        if(this.state.switchState && this.state.switchState === 'off') {
             switchButton.style.float = 'left';
             patternCounter.textContent = BLANK_COUNTER;
+            this.resetGame();
+            startButton.disabled = true;
         } else {
             switchButton.style.float = 'right';
             patternCounter.textContent = ON_COUNTER;
+            startButton.disabled = false;
         }
     }
 
     public handleStrictAction(evt: any) {
-        const indicator: any = document.querySelector( '.indicator' );
+        const indicator: any = document.querySelector( '.strict > .indicator' );
         evt.preventDefault();
-        strictState = strictState === 'off' ? 'on' : 'off';
-        if(switchState && switchState === 'on') {
-            if(strictState && strictState === 'off') {
+        this.changeStrictState();
+        if(this.state.switchState && this.state.switchState === 'on') {
+            if(this.state.strictState && this.state.strictState === 'off') {
                 indicator.style.background = "green";
             } else {
                 indicator.style.background = "red";
@@ -67,29 +73,28 @@ class ControlPanel extends React.Component {
 
     public handleStartAction(evt: any) {
         evt.preventDefault();
-        if(switchState && switchState === 'on') {
-            this.playGame();
+        if(this.state.switchState && this.state.switchState === 'on') {
+            this.playGame( parseInt( this.state.counter, 10 ) );
         }
     };
 
-    public playGame(): any {
+    public playGame( round: number ): any {
         const patternCounter: any = document.querySelector( '.count > p' );
         ( () => {
             if( round < MAX_STEPS ) {
-                patternCounter.textContext = this.showDoubleDigit( round );
-                this.playRound();
+                this.playRound( round );
         
                 setTimeout( () => {
                     if(this.arraysIdentical( simonPattern, playerPattern )) {
-                    round++;
-                    return this.playGame();
+                    this.increaseRound();
+                    return this.playGame( this.state.counter );
                     } else {
                         patternCounter.textContext = WRONG_COUNTER;
-                        if( strictState && strictState === "on") {
+                        if( this.state.strictState && this.state.strictState === "on") {
                             this.resetGame();
-                            return this.playGame();
+                            return this.playGame( this.state.counter );
                         } else {
-                            return this.playGame();
+                            return this.playGame( this.state.counter );
                         }
                     }
                 }, round * 2400 );
@@ -109,6 +114,30 @@ class ControlPanel extends React.Component {
                 <OnOffSwitch switchAction={this.handleSwitchAction} />
             </div>
         );
+    }
+
+    protected changeSwitchState(): void {
+        this.setState( ( state ) => {
+            this.state.switchState = this.state.switchState === 'off' ? 'on' : 'off';
+        })
+    }
+
+    protected changeStrictState(): void {
+        this.setState( ( state ) => {
+            this.state.strictState = this.state.strictState === 'off' ? 'on' : 'off';
+        })
+    }
+
+    protected increaseRound(): void {
+        this.setState( ( state ) => {
+            this.state.counter++;
+        });
+    }
+
+    protected resetRound(): void {
+        this.setState( ( state ) => {
+            this.state.counter = 1;
+        })
     }
 
     protected showDoubleDigit( num: number ): string {
@@ -133,12 +162,13 @@ class ControlPanel extends React.Component {
     }
     
     protected resetGame(): void {
-        round = 1;
         playerPattern = [];
         simonPattern = [];
     }
     
-    protected playRound(): void {
+    protected playRound( num: number ): void {
+        const patternCounter: any = document.querySelector( '.count > p' );
+        patternCounter.textContent = this.showDoubleDigit( num );
         simonPattern.push( this.getRandomButton() );
         this.playSimonPattern();
         this.getPlayerPattern();
@@ -157,12 +187,20 @@ class ControlPanel extends React.Component {
     }
     
     protected getPlayerPattern(): void {
-        simonPattern.forEach( ( button ) => setTimeout( () => {
-            this.getSimonButton();
-        }), lightTime );
+        const simonLength: number = simonPattern.length;
+		for (let i = 0; i < simonLength; i++) {
+			( () => {
+				setTimeout( () => {
+					this.getSimonButton();
+				}, i * lightTime);
+			})();
+		}
+        // simonPattern.forEach( ( button ) => setTimeout( () => {
+        //     this.getSimonButton();
+        // }), lightTime );
     }
     
-    protected getSimonButton(): void {
+    protected getSimonButton(): any {
         let btnClicked;
         const colorButton: any = document.querySelector( '[class$="button"]' );
         colorButton.onclick = ( event: any ) => {
