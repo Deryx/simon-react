@@ -58,12 +58,15 @@ class ControlPanel extends React.Component {
     public handleStrictAction(evt: any) {
         const indicator: any = document.querySelector( '.strict > .indicator' );
         const gameStatus: any = this.state._switchState;
+        const strictStatus: any = this.state._strictState;
         evt.preventDefault();
         this.changeStrictState();
-        if(gameStatus === 'on' && (this.state._strictState && this.state._strictState === 'on')) {
-            indicator.style.background = "green";
-        } else {
-            indicator.style.background = "red";
+        if( gameStatus === 'on' ) {
+            if( strictStatus === 'on') {
+                indicator.style.background = "green";
+            } else {
+                indicator.style.background = "red";
+            }
         }
     }
 
@@ -79,12 +82,11 @@ class ControlPanel extends React.Component {
         const patternCounter: any = document.querySelector( '.count > p' );
         ( () => {
             if( this.state._counter < MAX_STEPS ) {
-                this.playRound( this.state._counter );
+                this.playRound();
         
                 setTimeout( () => {
                     if(this.arraysIdentical( simonPattern, playerPattern )) {
-                    this.increaseRound();
-                    return this.playGame();
+                        return this.playGame();
                     } else {
                         patternCounter.textContext = WRONG_COUNTER;
                         if( this.state._strictState && this.state._strictState === "on") {
@@ -114,20 +116,20 @@ class ControlPanel extends React.Component {
     }
 
     protected changeSwitchState(): void {
-        let switchState: string = this.state._switchState;
-        switchState = switchState === 'off' ? 'on' : 'off';
-        this.setState({_switchState: switchState});
+        let newState: string;
+        newState = this.state._switchState === "off" ? "on" : "off";
+        this.setState({_switchState: newState});
     }
 
     protected changeStrictState(): void {
-        let strictState: string = this.state._strictState;
-        strictState = strictState === 'off' ? 'on' : 'off';
-        this.setState({_strictState: strictState});
+        let newState: string;
+        newState = this.state._strictState === "off" ? "on" : "off";
+        this.setState({_strictState: newState});
     }
 
     protected increaseRound(): void {
         let counter = parseInt( this.state._counter, 10 );
-        counter = counter++;
+        counter += 1;
         this.setState({_counter: counter});
     }
 
@@ -161,12 +163,13 @@ class ControlPanel extends React.Component {
         simonPattern = [];
     }
     
-    protected playRound( num: number ): void {
+    protected playRound(): void {
         const patternCounter: any = document.querySelector( '.count > p' );
-        patternCounter.textContent = this.showDoubleDigit( num );
+        patternCounter.textContent = this.showDoubleDigit( this.state._counter );
         simonPattern.push( this.getRandomButton() );
         this.playSimonPattern();
         this.getPlayerPattern();
+        this.increaseRound();
     }
     
     protected playSimonPattern(): void {
