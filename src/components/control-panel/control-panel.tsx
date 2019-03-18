@@ -93,7 +93,7 @@ class ControlPanel extends React.Component {
                             return this.playGame();
                         } else {
                             patternCounter.textContext = WRONG_COUNTER;
-                            if( strictStatus === "on") {
+                            if( strictStatus === "on" ) {
                                 this.resetGame();
                                 return this.playGame();
                             } else {
