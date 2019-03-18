@@ -210,26 +210,24 @@ class ControlPanel extends React.Component {
         const blueButton: any = document.querySelector( '[class$="blue-button"]' );
         const yellowButton: any = document.querySelector( '[class$="yellow-button"]' );
         greenButton.onclick = ( event: any ) => {
-            event = event || window.event;
-            const target = event.target || event.srcElement;
-            this.addPlayerSelection( target.id );
+            this.processPlayerClick( event );
         }
         redButton.onclick = ( event: any ) => {
-            event = event || window.event;
-            const target = event.target || event.srcElement;
-            this.addPlayerSelection( target.id );
+            this.processPlayerClick( event );
         }
         blueButton.onclick = ( event: any ) => {
-            event = event || window.event;
-            const target = event.target || event.srcElement;
-            this.addPlayerSelection( target.id );
+            this.processPlayerClick( event );
         }
         yellowButton.onclick = ( event: any ) => {
-            event = event || window.event;
-            const target = event.target || event.srcElement;
-            this.addPlayerSelection( target.id );
+            this.processPlayerClick( event );
         }
     }
+	
+    protected processPlayerClick(event: any): void {
+	    event = event || window.event;
+	    const target = event.target || event.srcElement;
+	    this.addPlayerSelection( target.id );
+    }	    
 
     protected addPlayerSelection( id: number ): void {
         let btnClicked: any;
