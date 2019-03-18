@@ -21,6 +21,8 @@ const lightTime: number = 800;
 
 let playerPattern: number[] = [];
 let simonPattern: number[] = [];
+let gameStatus: string;
+let strictStatus: string;
 
 class ControlPanel extends React.Component {
     public state: any;
@@ -43,11 +45,17 @@ class ControlPanel extends React.Component {
     public handleSwitchAction(evt: any) {
         const patternCounter: any = document.querySelector( '.count > p' );
         const switchButton: any = document.querySelector( '.case > .switch' );
+        const indicator: any = document.querySelector( '.strict > .indicator' );
         evt.preventDefault();
         this.changeSwitchState();
-        if(this.state._switchState && this.state._switchState === 'off') {
+        gameStatus = this.state._switchState;
+        if( gameStatus === 'off' ) {
             switchButton.style.float = 'left';
             patternCounter.textContent = BLANK_COUNTER;
+            if(strictStatus === "on") {
+                strictStatus = "off";
+                indicator.style.background = "red";
+            }
             this.resetGame();
         } else {
             switchButton.style.float = 'right';
@@ -57,12 +65,11 @@ class ControlPanel extends React.Component {
 
     public handleStrictAction(evt: any) {
         const indicator: any = document.querySelector( '.strict > .indicator' );
-        const gameStatus: any = this.state._switchState;
-        const strictStatus: any = this.state._strictState;
         evt.preventDefault();
         this.changeStrictState();
+        strictStatus = this.state._strictState;
         if( gameStatus === 'on' ) {
-            if( strictStatus === 'on') {
+            if( strictStatus === 'on' ) {
                 indicator.style.background = "green";
             } else {
                 indicator.style.background = "red";
@@ -71,32 +78,32 @@ class ControlPanel extends React.Component {
     }
 
     public handleStartAction(evt: any) {
-        const gameStatus: any = this.state._switchState;
         evt.preventDefault();
-        if(gameStatus === 'on') {
-            this.playGame();
-        }
+        this.playGame();
     };
 
     public playGame(): any {
         const patternCounter: any = document.querySelector( '.count > p' );
         ( () => {
-            if( this.state._counter < MAX_STEPS ) {
-                this.playRound();
-        
-                setTimeout( () => {
-                    if(this.arraysIdentical( simonPattern, playerPattern )) {
-                        return this.playGame();
-                    } else {
-                        patternCounter.textContext = WRONG_COUNTER;
-                        if( this.state._strictState && this.state._strictState === "on") {
-                            this.resetGame();
+            if( gameStatus === "on" ) {
+                if( this.state._counter < MAX_STEPS ) {
+                    this.playRound();        
+                    setTimeout( () => {
+                        if( !!this.arraysIdentical( simonPattern, playerPattern ) ) {
                             return this.playGame();
                         } else {
-                            return this.playGame();
+                            patternCounter.textContext = WRONG_COUNTER;
+                            if( strictStatus === "on") {
+                                this.resetGame();
+                                return this.playGame();
+                            } else {
+                                return this.playGame();
+                            }
                         }
-                    }
-                }, this.state._counter * 2400 );
+                    }, this.state._counter * lightTime * 2 );
+                }
+            } else {
+                this.resetGame();
             }
         })();
     }
@@ -145,11 +152,12 @@ class ControlPanel extends React.Component {
         }
     }
     
-    protected arraysIdentical( arr1: number[], arr2: number[] ): any {
+    protected arraysIdentical( arr1: number[], arr2: number[] ): boolean {
+        const array1length = arr1.length;
         if( arr1.length !== arr2.length ) {
             return false;
         }
-        for( let i = 0, len = arr1.length; i <= len; i++ ) {
+        for( let i = 0; i <= array1length; i++ ) {
             if( arr1[i] !== arr2[i] ) {
                 return false;
             }
@@ -159,6 +167,7 @@ class ControlPanel extends React.Component {
     }
     
     protected resetGame(): void {
+        this.resetRound();
         playerPattern = [];
         simonPattern = [];
     }
@@ -195,21 +204,42 @@ class ControlPanel extends React.Component {
 		}
     }
     
-    protected getSimonButton(): any {
-        let btnClicked;
-        const colorButton: any = document.querySelector( '[class$="button"]' );
-        colorButton.onclick = ( event: any ) => {
+    protected getSimonButton(): void {
+        const greenButton: any = document.querySelector( '[class$="green-button"]' );
+        const redButton: any = document.querySelector( '[class$="red-button"]' );
+        const blueButton: any = document.querySelector( '[class$="blue-button"]' );
+        const yellowButton: any = document.querySelector( '[class$="yellow-button"]' );
+        greenButton.onclick = ( event: any ) => {
             event = event || window.event;
             const target = event.target || event.srcElement;
-    
-            if( !isNaN( target.id ) ) {
-                btnClicked = target.id;
-                playerPattern.push( parseInt( btnClicked, 10 ) );
-                this.lightSimonButton( btnClicked );
-            }
+            this.addPlayerSelection( target.id );
+        }
+        redButton.onclick = ( event: any ) => {
+            event = event || window.event;
+            const target = event.target || event.srcElement;
+            this.addPlayerSelection( target.id );
+        }
+        blueButton.onclick = ( event: any ) => {
+            event = event || window.event;
+            const target = event.target || event.srcElement;
+            this.addPlayerSelection( target.id );
+        }
+        yellowButton.onclick = ( event: any ) => {
+            event = event || window.event;
+            const target = event.target || event.srcElement;
+            this.addPlayerSelection( target.id );
+        }
+    }
+
+    protected addPlayerSelection( id: number ): void {
+        let btnClicked: any;
+        if( !isNaN( id ) ) {
+            btnClicked = id;
+            playerPattern.push( parseInt( btnClicked, 10 ) );
+            this.lightSimonButton( btnClicked );
         };
     }
-    
+
     protected getRandomButton(): number {
         return Math.floor( Math.random() * 4 );
     }
