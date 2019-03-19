@@ -31,6 +31,7 @@ class ControlPanel extends React.Component {
         super(props);
 
         this.state = {
+	    _currentCount: BLANK_COUNTER,
             _counter: 1,
             _strictState: 'off',
             _switchState: 'off'
@@ -43,7 +44,6 @@ class ControlPanel extends React.Component {
     }
 
     public handleSwitchAction(evt: any) {
-        const patternCounter: any = document.querySelector( '.count > p' );
         const switchButton: any = document.querySelector( '.case > .switch' );
         const indicator: any = document.querySelector( '.strict > .indicator' );
         evt.preventDefault();
@@ -51,7 +51,7 @@ class ControlPanel extends React.Component {
         gameStatus = this.state._switchState;
         if( gameStatus === 'off' ) {
             switchButton.style.float = 'left';
-            patternCounter.textContent = BLANK_COUNTER;
+	    this.setCurrentCount( BLANK_COUNTER );	
             if(strictStatus === "on") {
                 strictStatus = "off";
                 indicator.style.background = "red";
@@ -59,11 +59,11 @@ class ControlPanel extends React.Component {
             this.resetGame();
         } else {
             switchButton.style.float = 'right';
-            patternCounter.textContent = ON_COUNTER;
+	    this.setCurrentCount( ON_COUNTER );	
         }
     }
 
-    public handleStrictAction(evt: any) {
+    public handleStrictAction( evt: any ) {
         const indicator: any = document.querySelector( '.strict > .indicator' );
         evt.preventDefault();
         this.changeStrictState();
@@ -77,22 +77,21 @@ class ControlPanel extends React.Component {
         }
     }
 
-    public handleStartAction(evt: any) {
+    public handleStartAction( evt: any ) {
         evt.preventDefault();
         this.playGame();
     };
 
     public playGame(): any {
-        const patternCounter: any = document.querySelector( '.count > p' );
         ( () => {
             if( gameStatus === "on" ) {
                 if( this.state._counter < MAX_STEPS ) {
                     simonPattern.push( this.getRandomButton() );
-                    patternCounter.textContent = this.showDoubleDigit( this.state._counter );
+		    this.setCurrentCount( this.showDoubleDigit( this.state._counter );			
                     this.playRound();        
                     setTimeout( () => {
                         if( !this.arraysIdentical( simonPattern, playerPattern ) ) {
-                            patternCounter.textContext = WRONG_COUNTER;
+			    this.setCurrentCount( WRONG_COUNTER );	
                             if( strictStatus === "on" ) {
                                 this.resetGame();
                             }
@@ -109,7 +108,7 @@ class ControlPanel extends React.Component {
             <div className="controls">
                 <NamePlate />
                 <div className="row">
-                    <PatternCounter />
+                    <PatternCounter patternCounter={this.state._currentCount} />
                     <StartButton startAction={this.handleStartAction} />
                     <StrictButton strictAction={this.handleStrictAction} />
                 </div>
@@ -138,6 +137,10 @@ class ControlPanel extends React.Component {
 
     protected resetRound(): void {
         this.setState({_counter: 1})
+    }
+	
+    protected setCurrentCount( count: any ) {
+	this.setState({_currentCount: count});    
     }
 
     protected showDoubleDigit( num: number ): string {
