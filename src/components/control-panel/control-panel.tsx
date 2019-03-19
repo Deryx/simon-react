@@ -108,7 +108,7 @@ class ControlPanel extends React.Component {
             <div className="controls">
                 <NamePlate />
                 <div className="row">
-                    <PatternCounter patternCounter={this.state._currentCount} />
+                    <PatternCounter counterState={this.state._currentCount} />
                     <StartButton startAction={this.handleStartAction} />
                     <StrictButton strictAction={this.handleStrictAction} />
                 </div>
