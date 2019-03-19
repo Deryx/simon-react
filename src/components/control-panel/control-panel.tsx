@@ -156,7 +156,7 @@ class ControlPanel extends React.Component {
         if( arr1.length !== arr2.length ) {
             return false;
         }
-        for( let i = 0; i <= array1length; i++ ) {
+        for( let i = 0; i < array1length; i++ ) {
             if( arr1[i] !== arr2[i] ) {
                 return false;
             }
