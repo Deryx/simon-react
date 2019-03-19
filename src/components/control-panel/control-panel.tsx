@@ -179,32 +179,27 @@ class ControlPanel extends React.Component {
     
     protected playSimonPattern(): void {
         const simonLength: number = simonPattern.length;
-		for (let i = 0; i < simonLength; i++) {
-			( () => {
-				setTimeout( () => {
-					const button = simonPattern[i];
-					this.lightSimonButton( button );
+	for (let i = 0; i < simonLength; i++) {
+	    ( () => {
+		setTimeout( () => {
+	            const button = simonPattern[i];
+		    this.lightSimonButton( button );
                 }, i * lightTime);
-			})();
-		}
+	    })();
+	}
     }
     
     protected getPlayerPattern(): void {
-        const simonLength: number = simonPattern.length;
-		for (let i = 0; i < simonLength; i++) {
-			( () => {
-				setTimeout( () => {
-					this.getSimonButton();
-				}, i * lightTime);
-			})();
-		}
+	setTimeout( () => {
+	    this.getSimonButton();	
+	}, this.state._counter * lightTime);
     }
     
     protected getSimonButton(): void {
-        const greenButton: any = document.querySelector( '[class$="green-button"]' );
-        const redButton: any = document.querySelector( '[class$="red-button"]' );
-        const blueButton: any = document.querySelector( '[class$="blue-button"]' );
-        const yellowButton: any = document.querySelector( '[class$="yellow-button"]' );
+        const greenButton: any = document.querySelector( '.green-button' );
+        const redButton: any = document.querySelector( '.red-button' );
+        const blueButton: any = document.querySelector( '.blue-button' );
+        const yellowButton: any = document.querySelector( '.yellow-button' );
         greenButton.onclick = ( event: any ) => {
             this.processPlayerClick( event );
         }
@@ -219,10 +214,10 @@ class ControlPanel extends React.Component {
         }
     }
 	
-    protected processPlayerClick(event: any): void {
-	    event = event || window.event;
-	    const target = event.target || event.srcElement;
-	    this.addPlayerSelection( parseInt( target.id, 10 ) );
+    protected processPlayerClick( event: any ): void {
+	event = event || window.event;
+	const target = event.target || event.srcElement;
+	this.addPlayerSelection( parseInt( target.id, 10 ) );
     }	    
 
     protected addPlayerSelection( id: number ): void {
