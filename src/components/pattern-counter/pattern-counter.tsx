@@ -2,7 +2,7 @@ import * as React from 'react';
 import './styles.css';
 
 interface IPatternCounterProps {
-    patternCount: number;   
+    patternCount: string;   
 }
 
 class PatternCounter extends React.Component<IPatternCounterProps> {
