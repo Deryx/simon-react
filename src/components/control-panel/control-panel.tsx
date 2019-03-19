@@ -87,7 +87,7 @@ class ControlPanel extends React.Component {
             if( gameStatus === "on" ) {
                 if( this.state._counter < MAX_STEPS ) {
                     simonPattern.push( this.getRandomButton() );
-		    this.setCurrentCount( this.showDoubleDigit( this.state._counter );			
+		    this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
                     this.playRound();        
                     setTimeout( () => {
                         if( !this.arraysIdentical( simonPattern, playerPattern ) ) {
