@@ -87,24 +87,20 @@ class ControlPanel extends React.Component {
         ( () => {
             if( gameStatus === "on" ) {
                 if( this.state._counter < MAX_STEPS ) {
+                    simonPattern.push( this.getRandomButton() );
+                    patternCounter.textContent = this.showDoubleDigit( this.state._counter );
                     this.playRound();        
                     setTimeout( () => {
-                        if( !!this.arraysIdentical( simonPattern, playerPattern ) ) {
-                            return this.playGame();
-                        } else {
+                        if( !this.arraysIdentical( simonPattern, playerPattern ) ) {
                             patternCounter.textContext = WRONG_COUNTER;
                             if( strictStatus === "on" ) {
                                 this.resetGame();
-                                return this.playGame();
-                            } else {
-                                return this.playGame();
                             }
                         }
+                        return this.playGame();
                     }, this.state._counter * lightTime * 2 );
                 }
-            } else {
-                this.resetGame();
-            }
+            } 
         })();
     }
     
@@ -173,9 +169,6 @@ class ControlPanel extends React.Component {
     }
     
     protected playRound(): void {
-        const patternCounter: any = document.querySelector( '.count > p' );
-        patternCounter.textContent = this.showDoubleDigit( this.state._counter );
-        simonPattern.push( this.getRandomButton() );
         this.playSimonPattern();
         this.getPlayerPattern();
         this.increaseRound();
@@ -226,16 +219,12 @@ class ControlPanel extends React.Component {
     protected processPlayerClick(event: any): void {
 	    event = event || window.event;
 	    const target = event.target || event.srcElement;
-	    this.addPlayerSelection( target.id );
+	    this.addPlayerSelection( parseInt( target.id, 10 ) );
     }	    
 
     protected addPlayerSelection( id: number ): void {
-        let btnClicked: any;
-        if( !isNaN( id ) ) {
-            btnClicked = id;
-            playerPattern.push( parseInt( btnClicked, 10 ) );
-            this.lightSimonButton( btnClicked );
-        };
+        playerPattern.push( id );
+        this.lightSimonButton( id );
     }
 
     protected getRandomButton(): number {
