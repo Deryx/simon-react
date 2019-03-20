@@ -62,3 +62,27 @@
 	background: red;
 	clear: both;
 }
+
+.counter, .start, .strict {
+	width: 33%;
+	float: left;
+}
+
+.counter > .count {
+	width: 50px;
+	height: 35px;
+	border: 5px solid #CCC;
+	margin: 0 auto;
+	text-align: right;
+}
+
+.counter > .count > p {
+	font-size: 250%;
+	color: red;
+	font-family: "Calculator", sans-serif;
+	margin: 0;
+	margin-top: -3px;
+	letter-spacing: 2px;
+	text-align: center;
+	font-family: "Digital-7", sans-serif;
+}

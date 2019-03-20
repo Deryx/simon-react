@@ -1,7 +1,7 @@
 import * as React from 'react';
 import NamePlate from '../name-plate/name-plate';
 import OnOffSwitch from '../on-off-switch/on-off-switch';
-import PatternCounter from '../pattern-counter/pattern-counter';
+// import PatternCounter from '../pattern-counter/pattern-counter';
 import StartButton from '../start-button/start-button';
 import StrictButton from '../strict-button/strict-button';
 import './styles.css';
@@ -16,7 +16,7 @@ const simonButtons: any = [
 const MAX_STEPS: number = 20;
 const BLANK_COUNTER: string  = '';
 const ON_COUNTER: string = '--';
-const WRONG_COUNTER: string = '!!';
+const WRONG_COUNTER: string = '! !';
 const lightTime: number = 800;
 
 let playerPattern: number[] = [];
@@ -31,8 +31,8 @@ class ControlPanel extends React.Component {
         super(props);
 
         this.state = {
-	    _currentCount: BLANK_COUNTER,
             _counter: 1,
+	        _currentCount: BLANK_COUNTER,
             _strictState: 'off',
             _switchState: 'off'
         }
@@ -51,7 +51,7 @@ class ControlPanel extends React.Component {
         gameStatus = this.state._switchState;
         if( gameStatus === 'off' ) {
             switchButton.style.float = 'left';
-	    this.setCurrentCount( BLANK_COUNTER );	
+	        this.setCurrentCount( BLANK_COUNTER );	
             if(strictStatus === "on") {
                 strictStatus = "off";
                 indicator.style.background = "red";
@@ -59,7 +59,7 @@ class ControlPanel extends React.Component {
             this.resetGame();
         } else {
             switchButton.style.float = 'right';
-	    this.setCurrentCount( ON_COUNTER );	
+	        this.setCurrentCount( ON_COUNTER );	
         }
     }
 
@@ -83,24 +83,15 @@ class ControlPanel extends React.Component {
     };
 
     public playGame(): any {
-        ( () => {
+        // ( () => {
             if( gameStatus === "on" ) {
                 if( this.state._counter < MAX_STEPS ) {
                     simonPattern.push( this.getRandomButton() );
-		    this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
-                    this.playRound();        
-                    setTimeout( () => {
-                        if( !this.arraysIdentical( simonPattern, playerPattern ) ) {
-			    this.setCurrentCount( WRONG_COUNTER );	
-                            if( strictStatus === "on" ) {
-                                this.resetGame();
-                            }
-                        }
-                        return this.playGame();
-                    }, this.state._counter * lightTime * 2 );
+		            this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
+                    this.playRound();
                 }
             } 
-        })();
+        // })();
     }
     
     public render() {
@@ -108,7 +99,12 @@ class ControlPanel extends React.Component {
             <div className="controls">
                 <NamePlate />
                 <div className="row">
-                    <PatternCounter counterState={this.state._currentCount} />
+                    <div className="counter">
+                        <div className="count">
+                            <p>{this.state._currentCount}</p>
+                        </div>
+                        <p>count</p>
+                    </div>
                     <StartButton startAction={this.handleStartAction} />
                     <StrictButton strictAction={this.handleStrictAction} />
                 </div>
@@ -175,24 +171,33 @@ class ControlPanel extends React.Component {
         this.playSimonPattern();
         this.getPlayerPattern();
         this.increaseRound();
+        setTimeout( () => {
+            if( !this.arraysIdentical( simonPattern, playerPattern ) ) {
+                this.setCurrentCount( WRONG_COUNTER );	
+                if( strictStatus === "on" ) {
+                    this.resetGame();
+                }
+            }
+            return this.playGame();
+        }, this.state._counter * lightTime * 2 );
     }
     
     protected playSimonPattern(): void {
         const simonLength: number = simonPattern.length;
-	for (let i = 0; i < simonLength; i++) {
-	    ( () => {
-		setTimeout( () => {
-	            const button = simonPattern[i];
-		    this.lightSimonButton( button );
+	    for (let i = 0; i < simonLength; i++) {
+            ( () => {
+                setTimeout( () => {
+                    const button = simonPattern[i];
+                    this.lightSimonButton( button );
                 }, i * lightTime);
-	    })();
-	}
+            })();
+	    }
     }
     
     protected getPlayerPattern(): void {
-	setTimeout( () => {
-	    this.getSimonButton();	
-	}, this.state._counter * lightTime);
+        setTimeout( () => {
+            this.getSimonButton();	
+        }, this.state._counter * lightTime);
     }
     
     protected getSimonButton(): void {
@@ -215,9 +220,9 @@ class ControlPanel extends React.Component {
     }
 	
     protected processPlayerClick( event: any ): void {
-	event = event || window.event;
-	const target = event.target || event.srcElement;
-	this.addPlayerSelection( parseInt( target.id, 10 ) );
+        event = event || window.event;
+        const target = event.target || event.srcElement;
+        this.addPlayerSelection( parseInt( target.id, 10 ) );
     }	    
 
     protected addPlayerSelection( id: number ): void {
@@ -289,5 +294,4 @@ class ControlPanel extends React.Component {
         button.play();
     }
 }
-
 export default ControlPanel;
