@@ -30,8 +30,8 @@ class ControlPanel extends React.Component {
         this.state = {
             _counter: 1,
 	    _currentCount: BLANK_COUNTER,
+	    _playerPattern: [],
 	    _simonPattern: [],
-	    _patternPattern: [],	
             _strictState: 'off',
             _switchState: 'off'
         }
