@@ -29,9 +29,9 @@ class ControlPanel extends React.Component {
 
         this.state = {
             _counter: 1,
-	    _currentCount: BLANK_COUNTER,
-	    _playerPattern: [],
-	    _simonPattern: [],
+            _currentCount: BLANK_COUNTER,
+            _playerPattern: [],
+            _simonPattern: [],
             _strictState: 'off',
             _switchState: 'off'
         }
@@ -85,8 +85,8 @@ class ControlPanel extends React.Component {
         // ( () => {
             if( gameStatus === "on" ) {
                 if( this.state._counter < MAX_STEPS ) {
+                    this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
                     this.addSimonButton( this.getRandomButton() );
-		    this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
                     this.playRound();
                 }
             } 
@@ -135,27 +135,27 @@ class ControlPanel extends React.Component {
     }
 	
     protected setCurrentCount( count: any ) {
-	this.setState({_currentCount: count});    
+	    this.setState({_currentCount: count});    
     }
 	
     protected addSimonButton( btn: number ): void {
-	const currentSimonPattern: number[] = this.state._simonPattern;
-	currentSimonPattern.push( btn );
-	this.setState({_simonPattern: currentSimonPattern});
+        const currentSimonPattern: number[] = this.state._simonPattern;
+        currentSimonPattern.push( btn );
+        this.setState({_simonPattern: currentSimonPattern});
     }
 	
     protected addPlayerButton( btn: number ): void {
-	const currentPlayerPattern: number[] = this.state._playerPattern;
-	currentPlayerPattern.push( btn );
-	this.setState({_playerPattern: currentPlayerPattern});
+        const currentPlayerPattern: number[] = this.state._playerPattern;
+        currentPlayerPattern.push( btn );
+        this.setState({_playerPattern: currentPlayerPattern});
     }
 	
     protected emptySimonPattern(): void {
-	this.setState({_simonPattern: []});    
+	    this.setState({_simonPattern: []});    
     }
 	
     protected emptyPlayerPattern(): void {
-	this.setState({_playerPattern: []});    
+	    this.setState({_playerPattern: []});    
     }
 
     protected showDoubleDigit( num: number ): string {
@@ -191,23 +191,26 @@ class ControlPanel extends React.Component {
         this.getPlayerPattern();
         this.increaseRound();
         setTimeout( () => {
-            if( !this.arraysIdentical( this._simonPattern, this._playerPattern ) ) {
-                this.setCurrentCount( WRONG_COUNTER );	
+            if( !this.arraysIdentical( this.state._simonPattern, this.state._playerPattern ) ) {
+                setTimeout( () => {
+                    this.setCurrentCount( WRONG_COUNTER );	
+                }, 100 );
                 if( strictStatus === "on" ) {
                     this.resetGame();
                 }
             }
-	    this.emptyPlayerPattern();	
+	        this.emptyPlayerPattern();	
+            this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
             return this.playGame();
         }, this.state._counter * lightTime * 2 );
     }
     
     protected playSimonPattern(): void {
-        const simonLength: number = this._simonPattern.length;
+        const simonLength: number = this.state._simonPattern.length;
 	    for (let i = 0; i < simonLength; i++) {
             ( () => {
                 setTimeout( () => {
-                    const button = this._simonPattern[i];
+                    const button = this.state._simonPattern[i];
                     this.lightSimonButton( button );
                 }, i * lightTime);
             })();
@@ -246,7 +249,7 @@ class ControlPanel extends React.Component {
     }	    
 
     protected addPlayerSelection( id: number ): void {
-	this.addPlayerButton( id );    
+	    this.addPlayerButton( id );    
         this.lightSimonButton( id );
     }
 
@@ -256,10 +259,9 @@ class ControlPanel extends React.Component {
     
     protected lightSimonButton( btn: number ): any {
         let originalColor: any = simonButtons[ btn ].color;
-    
-        const lightColor: any = this.lightenDarkenColor( originalColor, 90 );
-    
+        const lightColor: any = this.lightenDarkenColor( originalColor, 90 );    
         const button: any = document.getElementById( btn.toString() );
+    
         button.style.backgroundColor = lightColor;
     
         this.playSound( btn );
@@ -306,10 +308,8 @@ class ControlPanel extends React.Component {
 }
     
     protected playSound( btn: number ): void {
-        const sound = simonButtons[ btn ].sound;
-    
-        const button: any = document.querySelector( "div[id='" + btn + "'] audio" );
-    
+        const sound = simonButtons[ btn ].sound;    
+        const button: any = document.querySelector( "div[id='" + btn + "'] audio" );    
         button.innerHTML = "<source src='" + sound + "'>";
         button.play();
     }
