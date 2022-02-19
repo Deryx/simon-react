@@ -1,16 +1,28 @@
-import * as React from 'react';
+import React from 'react';
 import NamePlate from '../name-plate/name-plate';
 import OnOffSwitch from '../on-off-switch/on-off-switch';
 import StartButton from '../start-button/start-button';
 import StrictButton from '../strict-button/strict-button';
 import './styles.css';
 
-const simonButtons: any = [
-    {color: "#008000", sound: "https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"},
-    {color: "#FF0000", sound: "https://s3.amazonaws.com/freecodecamp/simonSound2.mp3"},
-    {color: "#F5AB35", sound: "https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"},
-    {color: "#0000FF", sound: "https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"}
-];
+const simonButtons: any = {
+    1: {
+        color: "#008000", 
+        sound: "https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"
+        },
+    2: {
+        color: "#FF0000", 
+        sound: "https://s3.amazonaws.com/freecodecamp/simonSound2.mp3"
+        },
+    3: {
+        color: "#F5AB35", 
+        sound: "https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"
+        },
+    4: {
+        color: "#0000FF", 
+        sound: "https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"
+        }
+};
 
 const MAX_STEPS: number = 20;
 const BLANK_COUNTER: string  = '';
@@ -18,258 +30,128 @@ const ON_COUNTER: string = '--';
 const WRONG_COUNTER: string = '! !';
 const lightTime: number = 800;
 
-let gameStatus: string;
-let strictStatus: string;
+let simonOn: boolean = false;
+let strictOn: boolean = false;
+let playerPattern: any = {};
+let simonPattern: any = {};
+let count: number = 1;
 
-class ControlPanel extends React.Component {
-    public state: any;
- 
-    constructor( props: any ) {
-        super(props);
-
-        this.state = {
-            _counter: 1,
-            _currentCount: BLANK_COUNTER,
-            _playerPattern: [],
-            _simonPattern: [],
-            _strictState: 'off',
-            _switchState: 'off'
-        }
-
-        this.handleSwitchAction = this.handleSwitchAction.bind(this);
-        this.handleStrictAction = this.handleStrictAction.bind(this);
-        this.handleStartAction = this.handleStartAction.bind(this);
-        this.playGame = this.playGame.bind(this);
+const ControlPanel = (): any => {
+    const getRandomButton = (): number => {
+        return Math.floor( Math.random() * 4 + 1 );
     }
 
-    public handleSwitchAction(evt: any) {
-        const switchButton: any = document.querySelector( '.case > .switch' );
-        const indicator: any = document.querySelector( '.strict > .indicator' );
-        evt.preventDefault();
-        this.changeSwitchState();
-        gameStatus = this.state._switchState;
-        if( gameStatus === 'off' ) {
-            switchButton.style.float = 'left';
-	        this.setCurrentCount( BLANK_COUNTER );	
-            if(strictStatus === "on") {
-                strictStatus = "off";
-                indicator.style.background = "red";
-            }
-            this.resetGame();
-        } else {
+    const addSimonButton = (): void => {
+        simonPattern[count] = getRandomButton();
+    }
+
+    const showCurrentCount = ( currentCnt: any ) => {
+        const counterSpan: any = document.querySelector( '.counter .count span' );
+        const currentNumber: string = count >= 0 && count <= 9 ? "0" + count : count.toString();
+        counterSpan.innerText = typeof currentCnt === "string" ? currentCnt : currentNumber;
+    }
+    
+    const resetGame = (): void => {
+        count = 1;
+        simonPattern = {};
+    }
+
+    const handleSwitchAction = () => {
+        const switchButton: any = document.querySelector( '.case .switch' );
+        const indicator: any = document.querySelector( '.strict .indicator' );
+
+        let switchPosition: any = switchButton.style.float;
+
+        if( switchPosition === 'left' ) {
             switchButton.style.float = 'right';
-	        this.setCurrentCount( ON_COUNTER );	
-        }
-    }
-
-    public handleStrictAction( evt: any ) {
-        const indicator: any = document.querySelector( '.strict > .indicator' );
-        evt.preventDefault();
-        this.changeStrictState();
-        strictStatus = this.state._strictState;
-        if( gameStatus === 'on' ) {
-            if( strictStatus === 'on' ) {
-                indicator.style.background = "green";
-            } else {
-                indicator.style.background = "red";
-            }
-        }
-    }
-
-    public handleStartAction( evt: any ) {
-        evt.preventDefault();
-        this.playGame();
-    };
-
-    public playGame(): any {
-        // ( () => {
-            if( gameStatus === "on" ) {
-                if( this.state._counter < MAX_STEPS ) {
-                    this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
-                    this.addSimonButton( this.getRandomButton() );
-                    this.playRound();
-                }
-            } 
-        // })();
-    }
-    
-    public render() {
-        return (
-            <div className="controls">
-                <NamePlate />
-                <div className="row">
-                    <div className="counter">
-                        <div className="count">
-                            <p>{this.state._currentCount}</p>
-                        </div>
-                        <p>count</p>
-                    </div>
-                    <StartButton startAction={this.handleStartAction} />
-                    <StrictButton strictAction={this.handleStrictAction} />
-                </div>
-                <OnOffSwitch switchAction={this.handleSwitchAction} />
-            </div>
-        );
-    }
-
-    protected changeSwitchState(): void {
-        let newState: string;
-        newState = this.state._switchState === "off" ? "on" : "off";
-        this.setState({_switchState: newState});
-    }
-
-    protected changeStrictState(): void {
-        let newState: string;
-        newState = this.state._strictState === "off" ? "on" : "off";
-        this.setState({_strictState: newState});
-    }
-
-    protected increaseRound(): void {
-        let counter = parseInt( this.state._counter, 10 );
-        counter += 1;
-        this.setState({_counter: counter});
-    }
-
-    protected resetRound(): void {
-        this.setState({_counter: 1})
-    }
-	
-    protected setCurrentCount( count: any ) {
-	    this.setState({_currentCount: count});    
-    }
-	
-    protected addSimonButton( btn: number ): void {
-        const currentSimonPattern: number[] = this.state._simonPattern;
-        currentSimonPattern.push( btn );
-        this.setState({_simonPattern: currentSimonPattern});
-    }
-	
-    protected addPlayerButton( btn: number ): void {
-        const currentPlayerPattern: number[] = this.state._playerPattern;
-        currentPlayerPattern.push( btn );
-        this.setState({_playerPattern: currentPlayerPattern});
-    }
-	
-    protected emptySimonPattern(): void {
-	    this.setState({_simonPattern: []});    
-    }
-	
-    protected emptyPlayerPattern(): void {
-	    this.setState({_playerPattern: []});    
-    }
-
-    protected showDoubleDigit( num: number ): string {
-        if( num >= 0 && num <= 9 ) {
-            return "0" + num;
+            showCurrentCount( ON_COUNTER );	
+            indicator.style.background = "red";
+            simonOn = true;
         } else {
-            return num.toString();
+            switchButton.style.float = 'left';
+            showCurrentCount( BLANK_COUNTER );	
+            resetGame();
+            simonOn = false;
         }
     }
-    
-    protected arraysIdentical( arr1: number[], arr2: number[] ): boolean {
-        const array1length = arr1.length;
-        if( arr1.length !== arr2.length ) {
-            return false;
-        }
-        for( let i = 0; i < array1length; i++ ) {
-            if( arr1[i] !== arr2[i] ) {
-                return false;
-            }
-        }
-    
-        return true;
+
+    const handleStrictAction = () => {
+        const indicator: any = document.querySelector( '.strict .indicator' );
+        strictOn = simonOn && !strictOn;
+        indicator.style.background = strictOn ? 'green' : 'red';
     }
+
+    const handleStartAction = () => {
+        if( simonOn ) {
+            console.log( strictOn );
+            playGame();
+        } else {
+            showCurrentCount(BLANK_COUNTER);	
+        }
+    };
     
-    protected resetGame(): void {
-        this.resetRound();
-        this.emptySimonPattern();
-        this.emptyPlayerPattern();
-    }
-    
-    protected playRound(): void {
-        this.playSimonPattern();
-        this.getPlayerPattern();
-        this.increaseRound();
-        setTimeout( () => {
-            if( !this.arraysIdentical( this.state._simonPattern, this.state._playerPattern ) ) {
+    const playSimonPattern = ( round: number ): void => {
+        if( round === 1 ) {
+            setTimeout( () => {
+                lightSimonButton( simonPattern[1] );
+            }, lightTime );
+        } else {
+            for (let i = 1; i <= round; i++) {
+                const button = simonPattern[i];
                 setTimeout( () => {
-                    this.setCurrentCount( WRONG_COUNTER );	
-                }, 100 );
-                if( strictStatus === "on" ) {
-                    this.resetGame();
-                }
-            }
-	        this.emptyPlayerPattern();	
-            this.setCurrentCount( this.showDoubleDigit( this.state._counter ) );			
-            return this.playGame();
-        }, this.state._counter * lightTime * 2 );
-    }
-    
-    protected playSimonPattern(): void {
-        const simonLength: number = this.state._simonPattern.length;
-	    for (let i = 0; i < simonLength; i++) {
-            ( () => {
-                setTimeout( () => {
-                    const button = this.state._simonPattern[i];
-                    this.lightSimonButton( button );
+                    lightSimonButton( button );
                 }, i * lightTime);
-            })();
-	    }
+            }
+        }
     }
     
-    protected getPlayerPattern(): void {
-        setTimeout( () => {
-            this.getSimonButton();	
-        }, this.state._counter * lightTime);
-    }
-    
-    protected getSimonButton(): void {
+    const getPlayerClick = (): void => {
         const greenButton: any = document.querySelector( '.green-button' );
         const redButton: any = document.querySelector( '.red-button' );
         const blueButton: any = document.querySelector( '.blue-button' );
         const yellowButton: any = document.querySelector( '.yellow-button' );
+        
         greenButton.onclick = ( event: any ) => {
-            this.processPlayerClick( event );
+            processPlayerClick( event );
         }
+
         redButton.onclick = ( event: any ) => {
-            this.processPlayerClick( event );
+            processPlayerClick( event );
         }
+
         blueButton.onclick = ( event: any ) => {
-            this.processPlayerClick( event );
+            processPlayerClick( event );
         }
+
         yellowButton.onclick = ( event: any ) => {
-            this.processPlayerClick( event );
+            processPlayerClick( event );
         }
     }
 	
-    protected processPlayerClick( event: any ): void {
+    const processPlayerClick = ( event: any ): void => {
+        event.preventDefault();
+
         event = event || window.event;
         const target = event.target || event.srcElement;
-        this.addPlayerSelection( parseInt( target.id, 10 ) );
-    }	    
 
-    protected addPlayerSelection( id: number ): void {
-	    this.addPlayerButton( id );    
-        this.lightSimonButton( id );
-    }
-
-    protected getRandomButton(): number {
-        return Math.floor( Math.random() * 4 );
+        const playerClick = parseInt( target.id, 10 );
+        playerPattern[count] = playerClick;
+        lightSimonButton( playerClick );
     }
     
-    protected lightSimonButton( btn: number ): any {
+    const lightSimonButton = ( btn: number ): any => {
         let originalColor: any = simonButtons[ btn ].color;
-        const lightColor: any = this.lightenDarkenColor( originalColor, 90 );    
+        const lightColor: any = lightenDarkenColor( originalColor, 90 );    
         const button: any = document.getElementById( btn.toString() );
     
         button.style.backgroundColor = lightColor;
     
-        this.playSound( btn );
+        playSound( btn );
         setTimeout( () => button.style.background = originalColor, lightTime / 2 );
         originalColor = '';
     }
     
-    protected lightenDarkenColor( col: any, amt: number ): any {
+    const lightenDarkenColor = ( col: any, amt: number ): any => {
         let usePound = false;
     
         if (col[0] === "#") {
@@ -305,13 +187,59 @@ class ControlPanel extends React.Component {
     
         return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
         /* tslint:enable:no-bitwise */
-}
+    }
     
-    protected playSound( btn: number ): void {
+    const playSound = ( btn: number ): void => {
         const sound = simonButtons[ btn ].sound;    
-        const button: any = document.querySelector( "div[id='" + btn + "'] audio" );    
+        const button: any = document.querySelector( "div[id='" + btn + "'] audio" );
+
         button.innerHTML = "<source src='" + sound + "'>";
         button.play();
     }
+
+    const playGame = (): any => {
+        if( count <= MAX_STEPS ) {
+            addSimonButton();
+            showCurrentCount( count );
+            playSimonPattern( count );
+            for( let i = 1; i <= count; i++){
+                getPlayerClick();
+                setTimeout( () => {
+                    if( Object.prototype.hasOwnProperty.call( playerPattern, i ) ){
+                        clearTimeout();
+                    } 
+                }, 5000 );
+                if( ( playerPattern[i] && simonPattern[i] !== playerPattern[i] ) ){
+                    showCurrentCount( WRONG_COUNTER );
+                    if( strictOn ){
+                        resetGame();
+                    }
+                }
+            }
+            playerPattern = {};
+            setTimeout( () => {
+                count++; 
+                playGame();
+            }, count * 3000 );
+        }	
+    }
+    
+    return (
+        <div className="controls">
+            <NamePlate />
+            <div className="row">
+                <div className="counter">
+                    <div className="count">
+                        <span>{ BLANK_COUNTER }</span>
+                    </div>
+                    <p>count</p>
+                </div>
+                <StartButton startAction={ handleStartAction } />
+                <StrictButton strictAction={ handleStrictAction } />
+            </div>
+            <OnOffSwitch switchAction={ handleSwitchAction } />
+        </div>
+    );
 }
+
 export default ControlPanel;

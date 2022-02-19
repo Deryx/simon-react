@@ -1,9 +1,9 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import Console from './components/console/console';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
 import './index.css';
 
 ReactDOM.render(
-  <Console />,
-  document.getElementById('root') as HTMLElement
+  <App />,
+  document.getElementById('root')
 );

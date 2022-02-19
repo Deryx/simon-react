@@ -1,20 +1,14 @@
-import * as React from 'react';
-import './styles.css';
+import React from 'react';
 
-interface IActionProps {
-    strictAction: any
-}
+const StrictButton = ( props: any ): any => {
 
-class StrictButton extends React.Component<IActionProps> {
-    public render() {
-        return (
-            <div className="strict">
-                <div className="indicator" />
-                <div className="button" onClick={this.props.strictAction} />
-                <p>strict</p>
-            </div>
-        );
-    }
+    return (
+        <div className="strict">
+            <div className="indicator" />
+            <div className="button" onClick={ props.strictAction } />
+            <p>strict</p>
+        </div>
+    );
 }
 
 export default StrictButton;

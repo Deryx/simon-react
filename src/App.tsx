@@ -1,22 +1,21 @@
-import * as React from 'react';
+import React from 'react';
+import Console from 'components/console/console';
 import './App.css';
 
-import logo from './logo.svg';
+const App = () => {
 
-class App extends React.Component {
-  public render() {
-    return (
+  return (
       <div className="App">
-        <header className="App-header">
+        <Console />
+        {/* <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
         <p className="App-intro">
           To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        </p> */}
       </div>
     );
-  }
 }
 
 export default App;

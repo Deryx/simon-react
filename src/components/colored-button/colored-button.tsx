@@ -1,19 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import './styles.css';
 
-interface IButtonProps {
-    buttonId: string;
-    buttonClass: string
-}
-
-class ColoredButton extends React.Component<IButtonProps> {
-    public render() {
-        return (
-            <div id={this.props.buttonId} className={this.props.buttonClass}>
-                <audio />
-            </div>
-        );
-    }
+const ColoredButton = ( props: any ): any => {
+    return (
+        <div id={ props.buttonId } className={ props.buttonClass } >
+            <audio />
+        </div>
+    )
 }
 
 export default ColoredButton;
